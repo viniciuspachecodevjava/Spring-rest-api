@@ -76,10 +76,18 @@
 		    <artifactId>spring-security-config</artifactId>
 		    <version>5.0.7.RELEASE</version>
 		</dependency>
+		
 		<dependency>
 		    <groupId>io.jsonwebtoken</groupId>
 		    <artifactId>jjwt</artifactId>
 		    <version>0.9.1</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.zaxxer/HikariCP -->
+		<dependency>
+		    <groupId>com.zaxxer</groupId>
+		    <artifactId>HikariCP</artifactId>
+		    <version>3.3.1</version>
 		</dependency>
 
 	</dependencies>
