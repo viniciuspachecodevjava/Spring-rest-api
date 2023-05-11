@@ -24,6 +24,7 @@ public class CursospringrestapiApplication implements WebMvcConfigurer{
 
 	public static void main(String[] args) {
 		SpringApplication.run(CursospringrestapiApplication.class, args);
+//		System.out.println(new BCryptPasswordEncoder().encode("123"));
 	}
 
 	/*Mapeamento global reflete em todo o sistema, faz a liberação dos metodos*/

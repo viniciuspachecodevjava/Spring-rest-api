@@ -5,13 +5,11 @@ import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-
+import curso.api.rest.ApplicationContextLoad;
 import curso.api.rest.model.Usuario;
 import curso.api.rest.repository.UsuarioRepository;
 import io.jsonwebtoken.Jwts;
@@ -20,9 +18,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Service
 @Component
 public class JWTTokenAuthenticationService {
-
-	@Autowired
-	private UsuarioRepository repository;
 
 	/* Tempo de expiração do token de 2 dias */
 	private static final long EXPIRATION_TIME = 172800000;
@@ -41,20 +36,23 @@ public class JWTTokenAuthenticationService {
 	 * resposta para o http
 	 */
 
-	public void addAuthentication(HttpServletResponse response, String username) throws IOException {
-		/* Montagem do token */
-		String JWT = Jwts.builder() /* Chama o gerador de token */
-				.setSubject(username)/* Define o assunto do JWT, entidade que o JWT está representando */
-				.setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME)) /* Tempo de expiração do token */
-				.signWith(SignatureAlgorithm.HS512, SECRET).compact();/* Compactação e algoritimo de geração de token */
-		/* Concatena o token com o prefixo */
-		String token = TOKEN_PREFIX + " " + JWT; /* Bearer 9281931ji123992 */
-
-		/* Adiciona no cabeçalho HTTP */
-		response.addHeader(HEADER_STRING, token);
-
-		/* Escreve o token como resposta no corpo */
-		response.getWriter().write("{\"Autorization\":\"" + token + "\"}");
+public void addAuthentication(HttpServletResponse response , String username) throws IOException {
+		
+		/*Montagem do Token*/
+		String JWT = Jwts.builder() /*Chama o gerador de Token*/
+				        .setSubject(username) /*Adiciona o usuario*/
+				        .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME)) /*Tempo de expiração*/
+				        .signWith(SignatureAlgorithm.HS512, SECRET).compact(); /*Compactação e algoritmos de geração de senha*/
+		
+		/*Junta token com o prefixo*/
+		String token = TOKEN_PREFIX + " " + JWT; /*Bearer 87878we8we787w8e78w78e78w7e87w*/
+		
+		/*Adiciona no cabeçalho http*/
+		response.addHeader(HEADER_STRING, token); /*Authorization: Bearer 87878we8we787w8e78w78e78w7e87w*/
+		
+		/*Escreve token como responsta no corpo http*/
+		response.getWriter().write("{\"Authorization\": \""+token+"\"}");
+		
 	}
 
 	/* Retorna o usuário validado com TOKEN ou se não for válido retorna NULL */
@@ -65,12 +63,13 @@ public class JWTTokenAuthenticationService {
 
 		if (token != null) {
 			/* Faz a validação do TOKEN do usuário na requisição */
-			String user = Jwts.parser().setSigningKey(SECRET) /* Bearer 9281931ji123992 */
-					.parseClaimsJwt(token.replace(TOKEN_PREFIX, "")) /* 9281931ji123992 */
-					.getBody().getSubject(); /* João silva */
+			String user = Jwts.parser().setSigningKey(SECRET) /*Bearer 87878we8we787w8e78w78e78w7e87w*/
+					.parseClaimsJws(token.replace(TOKEN_PREFIX, "")) /*87878we8we787w8e78w78e78w7e87w*/
+					.getBody().getSubject(); /*João Silva*/
 
 			if (user != null) {
-				Usuario usuario = repository.findUserByLogin(user);
+				Usuario usuario = ApplicationContextLoad.getApplicationContext()
+				        .getBean(UsuarioRepository.class).findUserByLogin(user);
 
 				if (usuario != null) {
 					return new UsernamePasswordAuthenticationToken(
