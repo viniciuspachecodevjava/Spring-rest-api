@@ -62,20 +62,25 @@ public void addAuthentication(HttpServletResponse response , String username) th
 		String token = request.getHeader(HEADER_STRING);
 
 		if (token != null) {
+			String tokenNumber = token.replace(TOKEN_PREFIX, "").trim();
 			/* Faz a validação do TOKEN do usuário na requisição */
 			String user = Jwts.parser().setSigningKey(SECRET) /*Bearer 87878we8we787w8e78w78e78w7e87w*/
-					.parseClaimsJws(token.replace(TOKEN_PREFIX, "")) /*87878we8we787w8e78w78e78w7e87w*/
+					.parseClaimsJws(tokenNumber) /*87878we8we787w8e78w78e78w7e87w*/
 					.getBody().getSubject(); /*João Silva*/
 
 			if (user != null) {
+				
 				Usuario usuario = ApplicationContextLoad.getApplicationContext()
 				        .getBean(UsuarioRepository.class).findUserByLogin(user);
 
 				if (usuario != null) {
-					return new UsernamePasswordAuthenticationToken(
-							usuario.getLogin(),
-							usuario.getSenha(),
-							usuario.getAuthorities());
+					if (tokenNumber.equalsIgnoreCase(usuario.getToken())) {
+						
+						return new UsernamePasswordAuthenticationToken(
+								usuario.getLogin(),
+								usuario.getSenha(),
+								usuario.getAuthorities());
+					}
 				}
 			}
 
