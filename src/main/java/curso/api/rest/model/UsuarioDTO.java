@@ -18,7 +18,7 @@ public class UsuarioDTO implements Serializable{
 		this.userNome = usuario.getNome();
 		this.userTelefones = usuario.getTelefones();
 	}
-	
+
 	public String getUserLogin() {
 		return userLogin;
 	}
