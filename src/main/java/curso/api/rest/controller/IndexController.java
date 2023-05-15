@@ -2,6 +2,7 @@ package curso.api.rest.controller;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import curso.api.rest.UsuarioNotFoundException;
 import curso.api.rest.model.Telefones;
 import curso.api.rest.model.Usuario;
+import curso.api.rest.model.UsuarioDTO;
 import curso.api.rest.repository.UsuarioRepository;
 
 /* Arquitetura REST */
@@ -37,11 +39,11 @@ public class IndexController {
 
 	/* Serviço RESTful */
 	@GetMapping(value = "/{id}", produces = "application/json")
-	public ResponseEntity<Usuario> init(@PathVariable(value = "id") Long id){
+	public ResponseEntity<UsuarioDTO> init(@PathVariable(value = "id") Long id){
 
 		Optional<Usuario> usuario = usuarioRepository.findById(id);
 		Usuario usuarioEncontrado = usuario.orElseThrow(() -> new UsuarioNotFoundException(id));
-		return new ResponseEntity<Usuario>(usuarioEncontrado, HttpStatus.OK);
+		return new ResponseEntity<UsuarioDTO>(new UsuarioDTO(usuarioEncontrado), HttpStatus.OK);
 
 	}
 
@@ -60,11 +62,13 @@ public class IndexController {
 	@GetMapping(value = "/", produces = "application/json")
 	@CacheEvict(value = "cacheUser", allEntries = true)
 	@CachePut("cacheUser")
-	public ResponseEntity<List<Usuario>> listaUsuarios() {
+	public ResponseEntity<List<UsuarioDTO>> listaUsuarios() {
 		
 		List<Usuario> usuarios = (List<Usuario>) usuarioRepository.findAll();
-
-		return new ResponseEntity<List<Usuario>>(usuarios, HttpStatus.OK);
+		List<UsuarioDTO> usuariosDTO = usuarios.stream()
+	            .map(usuario -> new UsuarioDTO(usuario))
+	            .collect(Collectors.toList());
+	    return ResponseEntity.ok().body(usuariosDTO);
 	}
 
 	/* Envia por post */
