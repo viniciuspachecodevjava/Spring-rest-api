@@ -51,6 +51,7 @@ public void addAuthentication(HttpServletResponse response , String username) th
 		/*Adiciona no cabeçalho http*/
 		response.addHeader(HEADER_STRING, token); /*Authorization: Bearer 87878we8we787w8e78w78e78w7e87w*/
 		
+		ApplicationContextLoad.getApplicationContext().getBean(UsuarioRepository.class).userTokenUpdate(JWT, username);
 		corsRelease(response);
 		
 		/*Escreve token como responsta no corpo http*/
