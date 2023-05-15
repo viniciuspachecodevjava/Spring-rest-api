@@ -1,9 +1,13 @@
 package curso.api.rest.controller;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -18,7 +22,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.google.gson.Gson;
 import curso.api.rest.UsuarioNotFoundException;
 import curso.api.rest.model.Telefones;
 import curso.api.rest.model.Usuario;
@@ -73,11 +77,30 @@ public class IndexController {
 
 	/* Envia por post */
 	@PostMapping(value = "/", produces = "application/json")
-	public ResponseEntity<Usuario> cadastrar(@RequestBody Usuario usuario) {
+	public ResponseEntity<Usuario> cadastrar(@RequestBody Usuario usuario) throws Exception {
 
 		for (Telefones telefone : usuario.getTelefones()) {
 			telefone.setUsuario(usuario);
 		}
+		URL url = new URL("https://viacep.com.br/ws/"+usuario.getCep()+"/json/");
+		URLConnection connection = url.openConnection();
+		InputStream is = connection.getInputStream();
+		BufferedReader br = new BufferedReader(new InputStreamReader(is,"UTF-8"));
+		
+		String cep = "";
+		StringBuilder jsonCep = new StringBuilder();
+		while ((cep = br.readLine()) != null) {
+			jsonCep.append(cep);
+		}
+		
+		Usuario userAux = new Gson().fromJson(jsonCep.toString(), Usuario.class );
+		usuario.setCep(userAux.getCep());
+		usuario.setLogradouro(userAux.getLogradouro());
+		usuario.setBairro(userAux.getBairro());
+		usuario.setLocalidade(userAux.getLocalidade());
+		usuario.setUf(userAux.getUf());
+		usuario.setComplemento(userAux.getComplemento());
+
 		String encryptedPassword = new BCryptPasswordEncoder().encode(usuario.getSenha());
 		usuario.setSenha(encryptedPassword);
 		Usuario usuarioSalvo = usuarioRepository.save(usuario);
