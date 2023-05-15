@@ -1,6 +1,5 @@
 package curso.api.rest;
 import java.sql.SQLException;
-import curso.api.rest.TokenValidationException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.postgresql.util.PSQLException;
 import org.springframework.dao.DataIntegrityViolationException;
