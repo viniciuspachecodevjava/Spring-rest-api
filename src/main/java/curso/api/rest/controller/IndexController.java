@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import curso.api.rest.UsuarioNotFoundException;
 import curso.api.rest.model.Telefones;
 import curso.api.rest.model.Usuario;
 import curso.api.rest.repository.UsuarioRepository;
@@ -36,11 +37,11 @@ public class IndexController {
 
 	/* Serviço RESTful */
 	@GetMapping(value = "/{id}", produces = "application/json")
-	public ResponseEntity<Usuario> init(@PathVariable(value = "id") Long id) {
+	public ResponseEntity<Usuario> init(@PathVariable(value = "id") Long id){
 
 		Optional<Usuario> usuario = usuarioRepository.findById(id);
-
-		return new ResponseEntity<Usuario>(usuario.get(), HttpStatus.OK);
+		Usuario usuarioEncontrado = usuario.orElseThrow(() -> new UsuarioNotFoundException(id));
+		return new ResponseEntity<Usuario>(usuarioEncontrado, HttpStatus.OK);
 
 	}
 
@@ -50,7 +51,7 @@ public class IndexController {
 			@PathVariable(value = "venda") Long venda) {
 
 		Optional<Usuario> usuario = usuarioRepository.findById(id);
-
+		
 		return new ResponseEntity<Usuario>(usuario.get(), HttpStatus.OK);
 
 	}
