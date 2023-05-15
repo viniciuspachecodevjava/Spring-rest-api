@@ -1,6 +1,6 @@
 package curso.api.rest;
-
 import java.sql.SQLException;
+import curso.api.rest.TokenValidationException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.postgresql.util.PSQLException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+
 @RestControllerAdvice
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -24,6 +25,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), "Number " + HttpStatus.NOT_FOUND.value(),
 				HttpStatus.NOT_FOUND.getReasonPhrase());
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+	}
+	@ExceptionHandler(TokenValidationException.class)
+	public ResponseEntity<ErrorResponse> handleTokenValidationException(TokenValidationException ex) {
+	    ErrorResponse errorResponse = new ErrorResponse(ex.getMessage(), "Number " + HttpStatus.UNAUTHORIZED.value(),
+	            HttpStatus.UNAUTHORIZED.getReasonPhrase());
+	    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
 	}
 
 	// Tratamento de excessões mais comuns
@@ -61,10 +68,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	// Retorna a mensagem raiz de cada erro lançado
 	
 	private String extractorErrorMessage(Exception ex) {
-		
 		if (ex instanceof DataIntegrityViolationException) {
-			return ((DataIntegrityViolationException) ex).getCause().getCause().getMessage();
-			
+				return ((DataIntegrityViolationException) ex).getCause().getCause().getMessage();
+				
 			} else if (ex instanceof ConstraintViolationException) {
 				return((ConstraintViolationException) ex).getCause().getCause().getMessage();
 			
@@ -74,8 +80,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 					} else if (ex instanceof SQLException) {
 						return((SQLException) ex).getCause().getCause().getMessage();
 						
-						}else if (ex instanceof MethodArgumentNotValidException) {
-								return((MethodArgumentNotValidException) ex).getCause().getCause().getMessage();
+						
+							}else if (ex instanceof MethodArgumentNotValidException) {
+										return((MethodArgumentNotValidException) ex).getCause().getCause().getMessage();
 					
 		} else {
 			return ex.getMessage();

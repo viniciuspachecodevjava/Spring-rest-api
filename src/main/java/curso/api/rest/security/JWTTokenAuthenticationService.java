@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import curso.api.rest.ApplicationContextLoad;
+import curso.api.rest.TokenValidationException;
 import curso.api.rest.model.Usuario;
 import curso.api.rest.repository.UsuarioRepository;
 import io.jsonwebtoken.Jwts;
@@ -20,7 +21,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 public class JWTTokenAuthenticationService {
 
 	/* Tempo de expiração do token de 2 dias */
-	private static final long EXPIRATION_TIME = 172800000;
+	private static final long EXPIRATION_TIME = 259200000;
 
 	/* Senha única para compor a autenticação e ajudar na segurança */
 	private static final String SECRET = "SecretKey";
@@ -62,7 +63,7 @@ public void addAuthentication(HttpServletResponse response , String username) th
 	public Authentication getAuthentication(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		/* Pega o TOKEN enviado no cabeçalho */
 		String token = request.getHeader(HEADER_STRING);
-
+		try {
 		if (token != null) {
 			String tokenNumber = token.replace(TOKEN_PREFIX, "").trim();
 			/* Faz a validação do TOKEN do usuário na requisição */
@@ -86,6 +87,10 @@ public void addAuthentication(HttpServletResponse response , String username) th
 				}
 			}
 
+		}
+		}catch (io.jsonwebtoken.ExpiredJwtException e) {
+			response.getOutputStream().print("Token expirado: ");
+			 throw new TokenValidationException("Token expirado");
 		}
 		corsRelease(response);
 		return null; /* Não autorizado */
